@@ -1,0 +1,138 @@
+import java.util.*;
+
+public class SimCharacter {
+    String name;
+    int x, y;
+    String gender;
+    Random random = new Random();
+    int hunger;
+    int health;
+    Map<SimCharacter, Integer> relationships;
+    java.util.List<String> thoughts = new java.util.ArrayList<>();
+
+    public SimCharacter(String name, int x, int y) {
+        this.name = name;
+        this.x = x;
+        this.y = y;
+        this.gender = random.nextBoolean() ? "Male" : "Female";
+        this.hunger = 0;
+        this.health = 100;
+        this.relationships = new HashMap<>();
+    }
+
+    public void addThought(String thought) {
+        if (thoughts.size() > 20) thoughts.remove(0);
+        thoughts.add(thought);
+    }
+
+    public String getRandomThought() {
+        String[] randoms = {"I wonder what's for dinner...", "The grass is nice today.", "I feel lucky!", "Is it going to rain?", "I hope I meet someone new."};
+        if (random.nextDouble() < 0.3) {
+            return randoms[random.nextInt(randoms.length)];
+        }
+        if (!thoughts.isEmpty()) {
+            return thoughts.get(random.nextInt(thoughts.size()));
+        }
+        return "Just thinking...";
+    }
+
+    public void initRelationships(java.util.List<SimCharacter> allCharacters) {
+        for (SimCharacter c : allCharacters) {
+            if (c != this) {
+                relationships.put(c, 0);
+            }
+        }
+    }
+
+    public boolean isAlive() {
+        return health > 0;
+    }
+
+    public void eat(World world) {
+        if (world.tiles[x][y].type.equals("food")) {
+            world.tiles[x][y].type = "grass";
+            hunger = Math.max(0, hunger - 40);
+        }
+    }
+
+    public void act(World world) {
+        // If standing on food, eat
+        if (world.tiles[x][y].type.equals("food")) {
+            eat(world);
+        }
+        // If hunger < 50, move randomly
+        if (hunger < 50) {
+            moveRandom(world.width, world.height, world);
+        } else {
+            // Try to move toward nearest food tile within radius 10
+            int[] foodTarget = findNearestFood(world, 10);
+            if (foodTarget != null) {
+                moveToward(foodTarget[0], foodTarget[1], world.width, world.height, world);
+            } else {
+                moveRandom(world.width, world.height, world);
+            }
+        }
+        // After moving, increase hunger
+        hunger++;
+        // If standing on food, eat again (in case moved onto food)
+        if (world.tiles[x][y].type.equals("food")) {
+            eat(world);
+        }
+        // If hunger > 80, decrease health
+        if (hunger > 80) {
+            health--;
+        }
+    }
+
+    public void moveRandom(int maxX, int maxY, World world) {
+        int dx = random.nextInt(3) - 1;
+        int dy = random.nextInt(3) - 1;
+        int nx = Math.max(0, Math.min(maxX - 1, x + dx));
+        int ny = Math.max(0, Math.min(maxY - 1, y + dy));
+        // Don't move into water or mountain
+        if (!world.tiles[nx][ny].type.equals("water") && !world.tiles[nx][ny].type.equals("mountain")) {
+            x = nx;
+            y = ny;
+        }
+    }
+
+    private void moveToward(int tx, int ty, int maxX, int maxY, World world) {
+        int dx = Integer.compare(tx, x);
+        int dy = Integer.compare(ty, y);
+        int nx = Math.max(0, Math.min(maxX - 1, x + dx));
+        int ny = Math.max(0, Math.min(maxY - 1, y + dy));
+        // Avoid moving into water or mountain
+        if (!world.tiles[nx][ny].type.equals("water") && !world.tiles[nx][ny].type.equals("mountain")) {
+            x = nx;
+            y = ny;
+        } else {
+            // fallback to random move if blocked
+            moveRandom(maxX, maxY, world);
+        }
+    }
+
+    private int[] findNearestFood(World world, int radius) {
+        int bestDist = Integer.MAX_VALUE;
+        int fx = -1, fy = -1;
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                int nx = x + dx;
+                int ny = y + dy;
+                if (nx >= 0 && nx < world.width && ny >= 0 && ny < world.height) {
+                    if (world.tiles[nx][ny].type.equals("food")) {
+                        int dist = Math.abs(dx) + Math.abs(dy);
+                        if (dist < bestDist) {
+                            bestDist = dist;
+                            fx = nx;
+                            fy = ny;
+                        }
+                    }
+                }
+            }
+        }
+        if (fx != -1 && fy != -1) {
+            return new int[]{fx, fy};
+        }
+        return null;
+    }
+}

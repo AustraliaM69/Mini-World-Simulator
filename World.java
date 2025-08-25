@@ -7,6 +7,7 @@ public class World {
     int width, height;
     Tile[][] tiles;
     java.util.List<SimCharacter> characters;
+    java.util.List<Animal> animals;
     Random random = new Random();
 
     public World(int width, int height) {
@@ -14,18 +15,23 @@ public class World {
         this.height = height;
         tiles = new Tile[width][height];
         characters = new java.util.ArrayList<>();
+        animals = new java.util.ArrayList<>();
 
         generateTiles();
         spawnCharacters(10);
+        spawnAnimals(8);
     }
 
     private void generateTiles() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 double r = random.nextDouble();
-                if (r < 0.1) tiles[x][y] = new Tile("water");
-                else if (r < 0.2) tiles[x][y] = new Tile("mountain");
-                else if (r < 0.25) tiles[x][y] = new Tile("food"); // 5% food
+                if (r < 0.08) tiles[x][y] = new Tile("water");
+                else if (r < 0.15) tiles[x][y] = new Tile("mountain");
+                else if (r < 0.18) tiles[x][y] = new Tile("food"); // 3% food
+                else if (r < 0.25) tiles[x][y] = new Tile("tree"); // 7% trees
+                else if (r < 0.28) tiles[x][y] = new Tile("rock"); // 3% rocks
+                else if (r < 0.30) tiles[x][y] = new Tile("building"); // 2% buildings
                 else tiles[x][y] = new Tile("grass");
             }
         }
@@ -62,6 +68,10 @@ public class World {
         for (SimCharacter c : characters) {
             c.moveRandom(width, height, this);
         }
+        // Move animals
+        for (Animal a : animals) {
+            a.moveRandom(width, height, this);
+        }
         // Check for meetings and update relationships
         for (SimCharacter c1 : characters) {
             for (SimCharacter c2 : characters) {
@@ -79,6 +89,19 @@ public class World {
             }
             if (tiles[c.x][c.y].type.equals("food")) {
                 c.addThought("Ate food at (" + c.x + "," + c.y + ")");
+            }
+        }
+    }
+    
+    private void spawnAnimals(int count) {
+        String[] animalTypes = {"sheep", "hornedSheep", "chicken", "pig", "boar"};
+        for (int i = 0; i < count; i++) {
+            int x = random.nextInt(width);
+            int y = random.nextInt(height);
+            // Only spawn on grass tiles
+            if (tiles[x][y].type.equals("grass")) {
+                String animalType = animalTypes[random.nextInt(animalTypes.length)];
+                animals.add(new Animal(animalType, x, y));
             }
         }
     }

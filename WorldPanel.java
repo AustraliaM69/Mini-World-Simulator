@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 
 public class WorldPanel extends JPanel {
@@ -28,6 +29,8 @@ public class WorldPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 int tileX = e.getX() / tileSize;
                 int tileY = e.getY() / tileSize;
+                
+                // Check for characters
                 for (SimCharacter c : world.characters) {
                     if (c.x == tileX && c.y == tileY) {
                         StringBuilder sb = new StringBuilder();
@@ -42,7 +45,19 @@ public class WorldPanel extends JPanel {
                             }
                         }
                         JOptionPane.showMessageDialog(WorldPanel.this, sb.toString(), c.name + "'s Thoughts", JOptionPane.INFORMATION_MESSAGE);
-                        break;
+                        return;
+                    }
+                }
+                
+                // Check for animals
+                for (Animal a : world.animals) {
+                    if (a.x == tileX && a.y == tileY) {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Name: ").append(a.name).append("\n");
+                        sb.append("Type: ").append(a.type).append("\n");
+                        sb.append("Location: (").append(a.x).append(", ").append(a.y).append(")");
+                        JOptionPane.showMessageDialog(WorldPanel.this, sb.toString(), a.name + " the " + a.type, JOptionPane.INFORMATION_MESSAGE);
+                        return;
                     }
                 }
             }
@@ -55,18 +70,55 @@ public class WorldPanel extends JPanel {
         // Use Graphics2D for antialiasing
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        // Draw tiles
+        // Draw ground tiles first (base layer)
         for (int y = 0; y < world.height; y++) {
             for (int x = 0; x < world.width; x++) {
                 Tile tile = world.tiles[x][y];
-                g2.setColor(tile.getColor());
-                g2.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                // Always draw grass as the base ground
+                BufferedImage grassSprite = SpriteManager.getSprite("grass");
+                if (grassSprite != null) {
+                    SpriteManager.drawSprite(g2, grassSprite, x * tileSize, y * tileSize, tileSize);
+                } else {
+                    // Fallback to color if sprite not available
+                    g2.setColor(Color.GREEN);
+                    g2.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                }
+            }
+        }
+        
+        // Draw terrain features on top (trees, rocks, buildings, etc.)
+        for (int y = 0; y < world.height; y++) {
+            for (int x = 0; x < world.width; x++) {
+                Tile tile = world.tiles[x][y];
+                if (!tile.type.equals("grass")) { // Don't redraw grass
+                    BufferedImage tileSprite = tile.getSprite();
+                    if (tileSprite != null) {
+                        SpriteManager.drawSprite(g2, tileSprite, x * tileSize, y * tileSize, tileSize);
+                    } else {
+                        // Fallback to color if sprite not available
+                        g2.setColor(tile.getColor());
+                        g2.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+                    }
+                }
             }
         }
         // Draw characters
         for (SimCharacter c : world.characters) {
-            g2.setColor(Color.RED);
-            g2.fillOval(c.x * tileSize + tileSize/4, c.y * tileSize + tileSize/4, tileSize/2, tileSize/2);
+            BufferedImage charSprite = c.getSprite();
+            if (charSprite != null) {
+                SpriteManager.drawSprite(g2, charSprite, c.x * tileSize, c.y * tileSize, tileSize);
+            } else {
+                // Fallback to colored circle if sprite not available
+                g2.setColor(Color.RED);
+                g2.fillOval(c.x * tileSize + tileSize/4, c.y * tileSize + tileSize/4, tileSize/2, tileSize/2);
+            }
+        }
+        // Draw animals
+        for (Animal a : world.animals) {
+            BufferedImage animalSprite = a.getSprite();
+            if (animalSprite != null) {
+                SpriteManager.drawSprite(g2, animalSprite, a.x * tileSize, a.y * tileSize, tileSize);
+            }
         }
         // Tooltip logic
         if (mouseX >= 0 && mouseY >= 0) {
@@ -75,9 +127,16 @@ public class WorldPanel extends JPanel {
             if (tileX >= 0 && tileX < world.width && tileY >= 0 && tileY < world.height) {
                 Tile tile = world.tiles[tileX][tileY];
                 SimCharacter charAtTile = null;
+                Animal animalAtTile = null;
                 for (SimCharacter c : world.characters) {
                     if (c.x == tileX && c.y == tileY) {
                         charAtTile = c;
+                        break;
+                    }
+                }
+                for (Animal a : world.animals) {
+                    if (a.x == tileX && a.y == tileY) {
+                        animalAtTile = a;
                         break;
                     }
                 }
@@ -85,9 +144,13 @@ public class WorldPanel extends JPanel {
                 tooltip.append("Tile: ").append(tile.type);
                 if (charAtTile != null) {
                     tooltip.append("\n");
-                    tooltip.append("Name: ").append(charAtTile.name).append("\n");
+                    tooltip.append("Character: ").append(charAtTile.name).append("\n");
                     tooltip.append("Hunger: ").append(charAtTile.hunger).append("\n");
                     tooltip.append("Health: ").append(charAtTile.health);
+                }
+                if (animalAtTile != null) {
+                    tooltip.append("\n");
+                    tooltip.append("Animal: ").append(animalAtTile.name).append(" (").append(animalAtTile.type).append(")");
                 }
                 // Prepare to draw tooltip
                 String[] lines = tooltip.toString().split("\n");

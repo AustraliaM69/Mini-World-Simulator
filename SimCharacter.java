@@ -1,4 +1,5 @@
 import java.util.*;
+import java.awt.image.BufferedImage;
 
 public class SimCharacter {
     String name;
@@ -9,6 +10,7 @@ public class SimCharacter {
     int health;
     Map<SimCharacter, Integer> relationships;
     java.util.List<String> thoughts = new java.util.ArrayList<>();
+    private BufferedImage sprite;
 
     public SimCharacter(String name, int x, int y) {
         this.name = name;
@@ -18,6 +20,7 @@ public class SimCharacter {
         this.hunger = 0;
         this.health = 100;
         this.relationships = new HashMap<>();
+        setRandomSprite();
     }
 
     public void addThought(String thought) {
@@ -134,5 +137,13 @@ public class SimCharacter {
             return new int[]{fx, fy};
         }
         return null;
+    }
+    
+    private void setRandomSprite() {
+        sprite = SpriteManager.getRandomSprite("character");
+    }
+    
+    public BufferedImage getSprite() {
+        return sprite;
     }
 }

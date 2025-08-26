@@ -1,5 +1,5 @@
-import java.util.*;
 import java.awt.image.BufferedImage;
+import java.util.*;
 
 public class SimCharacter {
     String name;
@@ -8,6 +8,7 @@ public class SimCharacter {
     Random random = new Random();
     int hunger;
     int health;
+    int social;
     Map<SimCharacter, Integer> relationships;
     java.util.List<String> thoughts = new java.util.ArrayList<>();
     private BufferedImage sprite;
@@ -19,6 +20,7 @@ public class SimCharacter {
         this.gender = random.nextBoolean() ? "Male" : "Female";
         this.hunger = 0;
         this.health = 100;
+        this.social = 0;
         this.relationships = new HashMap<>();
         setRandomSprite();
     }
@@ -26,6 +28,10 @@ public class SimCharacter {
     public void addThought(String thought) {
         if (thoughts.size() > 20) thoughts.remove(0);
         thoughts.add(thought);
+    }
+    public void addEventThought(String event) {
+        if (thoughts.size() > 20) thoughts.remove(0);
+        thoughts.add(event);
     }
 
     public String getRandomThought() {
@@ -55,12 +61,17 @@ public class SimCharacter {
         if (world.tiles[x][y].type.equals("food")) {
             world.tiles[x][y].type = "grass";
             hunger = Math.max(0, hunger - 40);
+          //  System.out.println("DEBUG: " + name + " ate food at (" + x + "," + y + ")"+"\n DELETE FOOD TILE ACIVATED");
         }
     }
 
     public void act(World world) {
-        // If standing on food, eat
-        if (world.tiles[x][y].type.equals("food")) {
+        //Thought randomly
+        if(random.nextDouble()<0.05) {
+            addThought(getRandomThought());
+        }
+        // If standing on food, eat if hunger is at least 50
+        if (world.tiles[x][y].type.equals("food") && hunger >= 50) {
             eat(world);
         }
         // If hunger < 50, move randomly
@@ -68,6 +79,7 @@ public class SimCharacter {
             moveRandom(world.width, world.height, world);
         } else {
             // Try to move toward nearest food tile within radius 10
+            this.addEventThought("I'm hungry and looking for food.");
             int[] foodTarget = findNearestFood(world, 10);
             if (foodTarget != null) {
                 moveToward(foodTarget[0], foodTarget[1], world.width, world.height, world);
@@ -77,13 +89,20 @@ public class SimCharacter {
         }
         // After moving, increase hunger
         hunger++;
-        // If standing on food, eat again (in case moved onto food)
-        if (world.tiles[x][y].type.equals("food")) {
-            eat(world);
-        }
+
         // If hunger > 80, decrease health
         if (hunger > 80) {
             health--;
+        }
+
+        //Social needs
+        if(social >= 45){
+            SimCharacter other = findNearestCharacter(world, 5);
+            if(other != null){
+                moveToward(other.x,other.y,world.width, world.height, world);
+        }else{
+             // No one nearby, random move already called above
+            }
         }
     }
 
@@ -138,6 +157,26 @@ public class SimCharacter {
         }
         return null;
     }
+
+    public SimCharacter findNearestCharacter(World world, int radius) {
+    SimCharacter nearest = null;
+    int nearestDist = Integer.MAX_VALUE;
+
+    for (SimCharacter other : world.characters) {
+        if (other == this) continue; // don’t chase yourself
+
+        int dx = other.x - this.x;
+        int dy = other.y - this.y;
+        int dist = Math.abs(dx) + Math.abs(dy); // Manhattan distance (works fine for grids)
+
+        if (dist < nearestDist && dist <= radius) {
+            nearestDist = dist;
+            nearest = other;
+        }
+    }
+
+    return nearest;
+}
     
     private void setRandomSprite() {
         sprite = SpriteManager.getRandomSprite("character");

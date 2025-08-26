@@ -64,9 +64,9 @@ public class World {
     }
 
     public void tick() {
-        // Move characters
+        // Character actions
         for (SimCharacter c : characters) {
-            c.moveRandom(width, height, this);
+            c.act(this);
         }
         // Move animals
         for (Animal a : animals) {
@@ -78,17 +78,8 @@ public class World {
                 if (c1 != c2 && c1.x == c2.x && c1.y == c2.y) {
                     int rel = c1.relationships.getOrDefault(c2, 0);
                     c1.relationships.put(c2, rel + 1);
-                    c1.addThought("Met " + c2.name + " (" + c2.gender + ")");
+                    c1.addThought("Met " + c2.name + " (" + c2.gender + ") Relationship: " + (rel));
                 }
-            }
-        }
-        // Check for food eaten and random thoughts
-        for (SimCharacter c : characters) {
-            if (tiles[c.x][c.y].type.equals("grass") && random.nextDouble() < 0.1) {
-                c.addThought(c.getRandomThought());
-            }
-            if (tiles[c.x][c.y].type.equals("food")) {
-                c.addThought("Ate food at (" + c.x + "," + c.y + ")");
             }
         }
     }

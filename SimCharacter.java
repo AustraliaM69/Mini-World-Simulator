@@ -1,4 +1,7 @@
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 public class SimCharacter {
@@ -13,8 +16,8 @@ public class SimCharacter {
     java.util.List<String> thoughts = new java.util.ArrayList<>();
     private BufferedImage sprite;
 
-    public SimCharacter(String name, int x, int y) {
-        this.name = name;
+    public SimCharacter(int x, int y) {
+        this.name = generateName();
         this.x = x;
         this.y = y;
         this.gender = random.nextBoolean() ? "Male" : "Female";
@@ -184,5 +187,16 @@ public class SimCharacter {
     
     public BufferedImage getSprite() {
         return sprite;
+    }
+        private String generateName() {
+        // Placeholder for name generation logic
+        try{
+        List<String> names = Files.readAllLines(Paths.get("names.txt"));
+        String name = names.get(random.nextInt(names.size()));
+        return name;
+    } catch (IOException e) {
+        e.printStackTrace();
+        return "Unknown";
+    }
     }
 }

@@ -30,7 +30,7 @@ public class WorldPanel extends JPanel {
                 int tileX = e.getX() / tileSize;
                 int tileY = e.getY() / tileSize;
                 
-                // Check for characters
+                // Check for characters || Character click UI
                 for (SimCharacter c : world.characters) {
                     if (c.x == tileX && c.y == tileY) {
                         StringBuilder sb = new StringBuilder();

@@ -1,6 +1,3 @@
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class World {
@@ -41,12 +38,8 @@ public class World {
         for (int i = 0; i < count; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
-            try {
-                characters.add(new SimCharacter(generateName(), x, y));
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+
+                characters.add(new SimCharacter(x, y));
         }
         // Initialize relationships
         for (SimCharacter c : characters) {
@@ -54,13 +47,6 @@ public class World {
                 if (c != other) c.relationships.put(other, 0);
             }
         }
-    }
-
-    private String generateName() throws IOException {
-        // Placeholder for name generation logic
-        List<String> names = Files.readAllLines(Paths.get("names.txt"));
-        String name = names.get(random.nextInt(names.size()));
-        return name;
     }
 
     public void tick() {

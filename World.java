@@ -19,20 +19,36 @@ public class World {
         spawnAnimals(8);
     }
 
-    private void generateTiles() {
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
+private void generateTiles() {
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            // 70% chance: copy a neighbor’s terrain
+            if (x > 0 && y > 0 && random.nextDouble() < 0.7) {
+                ArrayList<Tile> neighbors = new ArrayList<>();
+                if (x > 0) neighbors.add(tiles[x - 1][y]);     // left
+                if (y > 0) neighbors.add(tiles[x][y - 1]);     // top
+                if (x > 0 && y > 0) neighbors.add(tiles[x - 1][y - 1]); // top-left
+                if (x < width-1 && y > 0) neighbors.add(tiles[x + 1][y - 1]); // top-right
+
+                // Pick a random neighbor and copy its type
+                Tile chosen = neighbors.get(random.nextInt(neighbors.size()));
+                tiles[x][y] = new Tile(chosen.type);
+                
+            } else {
+                // fallback: normal random roll
                 double r = random.nextDouble();
                 if (r < 0.08) tiles[x][y] = new Tile("water");
                 else if (r < 0.15) tiles[x][y] = new Tile("mountain");
-                else if (r < 0.18) tiles[x][y] = new Tile("food"); // 3% food
-                else if (r < 0.25) tiles[x][y] = new Tile("tree"); // 7% trees
-                else if (r < 0.28) tiles[x][y] = new Tile("rock"); // 3% rocks
-                else if (r < 0.30) tiles[x][y] = new Tile("building"); // 2% buildings
+                else if (r < 0.18) tiles[x][y] = new Tile("food");
+                else if (r < 0.25) tiles[x][y] = new Tile("tree");
+                else if (r < 0.28) tiles[x][y] = new Tile("rock");
+                else if (r < 0.30) tiles[x][y] = new Tile("building");
                 else tiles[x][y] = new Tile("grass");
             }
         }
     }
+}
+
 
     private void spawnCharacters(int count) {
         for (int i = 0; i < count; i++) {

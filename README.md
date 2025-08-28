@@ -1,5 +1,7 @@
 # Mini World Sim
 
+<img width="995" height="1060" alt="image" src="https://github.com/user-attachments/assets/e12b46d3-9220-4994-a88c-268d74ae13c7" />
+
 A simple 2D world simulation where characters live, eat, and interact with each other.
 
 ## What it does

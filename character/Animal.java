@@ -1,5 +1,9 @@
+package character;
 import java.awt.image.BufferedImage;
 import java.util.Random;
+
+import utility.SpriteManager;
+import world.World;
 
 public class Animal {
     String name;
@@ -15,6 +19,16 @@ public class Animal {
         this.name = generateName();
         setSpriteForType();
     }
+    
+    // Getter methods for cross-package access
+    public String getName() { return name; }
+    public String getType() { return type; }
+    public int getX() { return x; }
+    public int getY() { return y; }
+    
+    // Setter methods for cross-package access
+    public void setX(int x) { this.x = x; }
+    public void setY(int y) { this.y = y; }
     
     private void setSpriteForType() {
         switch (type) {
@@ -52,7 +66,7 @@ public class Animal {
             int nx = Math.max(0, Math.min(maxX - 1, x + dx));
             int ny = Math.max(0, Math.min(maxY - 1, y + dy));
             // Don't move into water or mountain
-            if (!world.tiles[nx][ny].type.equals("water") && !world.tiles[nx][ny].type.equals("mountain")) {
+            if (!world.getTiles()[nx][ny].getType().equals("water") && !world.getTiles()[nx][ny].getType().equals("mountain")) {
                 x = nx;
                 y = ny;
             }
@@ -61,9 +75,5 @@ public class Animal {
     
     public BufferedImage getSprite() {
         return sprite;
-    }
-    
-    public String getType() {
-        return type;
     }
 }

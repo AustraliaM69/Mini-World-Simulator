@@ -1,5 +1,8 @@
+package world;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+
+import utility.SpriteManager;
 
 public class Tile {
     String type;
@@ -8,6 +11,15 @@ public class Tile {
     
     public Tile(String type) {
         this.type = type;
+        setSpriteForType();
+    }
+    
+    // Getter method for cross-package access
+    public String getType() { return type; }
+    
+    // Setter method for cross-package access
+    public void setType(String type) { 
+        this.type = type; 
         setSpriteForType();
     }
     

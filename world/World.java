@@ -1,4 +1,8 @@
+package world;
 import java.util.*;
+
+import character.Animal;
+import character.SimCharacter;
 
 public class World {
     int width, height;
@@ -18,6 +22,13 @@ public class World {
         spawnCharacters(10);
         spawnAnimals(8);
     }
+
+    // Getter methods for cross-package access
+    public int getWidth() { return width; }
+    public int getHeight() { return height; }
+    public Tile[][] getTiles() { return tiles; }
+    public java.util.List<SimCharacter> getCharacters() { return characters; }
+    public java.util.List<Animal> getAnimals() { return animals; }
 
 private void generateTiles() {
     for (int y = 0; y < height; y++) {
@@ -77,12 +88,12 @@ private void generateTiles() {
         // Check for meetings and update relationships
         for (SimCharacter c1 : characters) {
             for (SimCharacter c2 : characters) {
-                if (c1 != c2 && c1.x == c2.x && c1.y == c2.y) {
+                if (c1 != c2 && c1.getX() == c2.getX() && c1.getY() == c2.getY()) {
                     int rel = c1.relationships.getOrDefault(c2, 0);
                     c1.relationships.put(c2, rel + 1);
-                    c1.addThought("Met " + c2.name + " (" + c2.gender + ") Relationship: " + (rel));
-                    c1.social = 0; // Reset social on meeting
-                    c2.social = 0; // Reset social on meeting
+                    c1.addThought("Met " + c2.getName() + " (" + c2.getGender() + ") Relationship: " + (rel));
+                    c1.setSocial(0); // Reset social on meeting
+                    c2.setSocial(0); // Reset social on meeting
                 }
             }
         }
@@ -94,7 +105,7 @@ private void generateTiles() {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
             // Only spawn on grass tiles
-            if (tiles[x][y].type.equals("grass")) {
+            if (tiles[x][y].getType().equals("grass")) {
                 String animalType = animalTypes[random.nextInt(animalTypes.length)];
                 animals.add(new Animal(animalType, x, y));
             }

@@ -1,5 +1,8 @@
+package ui;
 import java.awt.*;
 import javax.swing.*;
+
+import world.World;
 
 public class SimFrame extends JFrame {
     private final World world;

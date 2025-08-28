@@ -146,7 +146,9 @@ public class WorldPanel extends JPanel {
                     tooltip.append("\n");
                     tooltip.append("Character: ").append(charAtTile.name).append("\n");
                     tooltip.append("Hunger: ").append(charAtTile.hunger).append("\n");
+                    tooltip.append("Social: ").append(charAtTile.social).append("\n");
                     tooltip.append("Health: ").append(charAtTile.health);
+                    
                 }
                 if (animalAtTile != null) {
                     tooltip.append("\n");

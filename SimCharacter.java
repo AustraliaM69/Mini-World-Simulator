@@ -68,6 +68,8 @@ public class SimCharacter {
         }
     }
 
+
+        //REFACTOR THIS!!! CHARACTERS CAN MOVE TWICE IN ONE TICK || SEPERATE ALL BEHAVIOR LOGIC INTO ITS OWN CLASS
     public void act(World world) {
         //Thought randomly
         if(random.nextDouble()<0.05) {
@@ -82,7 +84,6 @@ public class SimCharacter {
             moveRandom(world.width, world.height, world);
         } else {
             // Try to move toward nearest food tile within radius 10
-            this.addEventThought("I'm hungry and looking for food.");
             int[] foodTarget = findNearestFood(world, 10);
             if (foodTarget != null) {
                 moveToward(foodTarget[0], foodTarget[1], world.width, world.height, world);
@@ -92,6 +93,9 @@ public class SimCharacter {
         }
         // After moving, increase hunger
         hunger++;
+
+        //Temporary social increase for testing
+        social++;
 
         // If hunger > 80, decrease health
         if (hunger > 80) {

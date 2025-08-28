@@ -81,6 +81,8 @@ private void generateTiles() {
                     int rel = c1.relationships.getOrDefault(c2, 0);
                     c1.relationships.put(c2, rel + 1);
                     c1.addThought("Met " + c2.name + " (" + c2.gender + ") Relationship: " + (rel));
+                    c1.social = 0; // Reset social on meeting
+                    c2.social = 0; // Reset social on meeting
                 }
             }
         }

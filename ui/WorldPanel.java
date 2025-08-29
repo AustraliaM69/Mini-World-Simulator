@@ -1,11 +1,10 @@
 package ui;
+import character.Animal;
+import character.SimCharacter;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
-
-import character.Animal;
-import character.SimCharacter;
 import utility.SpriteManager;
 import world.Tile;
 import world.World;
@@ -43,6 +42,7 @@ public class WorldPanel extends JPanel {
                         StringBuilder sb = new StringBuilder();
                         sb.append("Name: ").append(c.getName()).append("\n");
                         sb.append("Gender: ").append(c.getGender()).append("\n");
+                        sb.append("Spouse: ").append(c.isMarried() ? c.getSpouse().getName() : "None").append("\n");
                         sb.append("Thoughts / Memories:\n");
                         if (c.getThoughts().isEmpty()) {
                             sb.append("(none)");

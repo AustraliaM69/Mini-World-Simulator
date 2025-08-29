@@ -1,8 +1,7 @@
 package world;
-import java.util.*;
-
 import character.Animal;
 import character.SimCharacter;
+import java.util.*;
 
 public class World {
     int width, height;
@@ -34,7 +33,7 @@ private void generateTiles() {
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             // 70% chance: copy a neighbor’s terrain
-            if (x > 0 && y > 0 && random.nextDouble() < 0.7) {
+            if (x > 0 && y > 0 && random.nextDouble() < 0.5) {
                 ArrayList<Tile> neighbors = new ArrayList<>();
                 if (x > 0) neighbors.add(tiles[x - 1][y]);     // left
                 if (y > 0) neighbors.add(tiles[x][y - 1]);     // top
@@ -85,15 +84,28 @@ private void generateTiles() {
         for (Animal a : animals) {
             a.moveRandom(width, height, this);
         }
-        // Check for meetings and update relationships
+        // Check for meetings and update relationships || Refactor this. Way too big and inefficient
         for (SimCharacter c1 : characters) {
             for (SimCharacter c2 : characters) {
                 if (c1 != c2 && c1.getX() == c2.getX() && c1.getY() == c2.getY()) {
                     int rel = c1.relationships.getOrDefault(c2, 0);
                     c1.relationships.put(c2, rel + 1);
-                    c1.addThought("Met " + c2.getName() + " (" + c2.getGender() + ") Relationship: " + (rel));
+                    c1.addThought("Saw " + c2.getName() + " (" + c2.getGender() + ") Relationship: " + (rel));
                     c1.setSocial(0); // Reset social on meeting
                     c2.setSocial(0); // Reset social on meeting
+                    
+                    if(c1.isMarried() && c1.getSpouse() == c2) {
+                        c1.addThought("Spent time with my spouse " + c2.getName() + ". Feeling happy!");
+                        c2.addThought("Spent time with my spouse " + c1.getName() + ". Feeling happy!");
+                    } else if(rel > 1 && !c1.isMarried() && !c2.isMarried() && c1.getGender() != c2.getGender()) {
+                        // 10% chance to marry if relationship is strong enough
+                        if(random.nextDouble() < 0.33) {
+                            c1.marry(c2);
+                            c1.addThought("I married " + c2.getName() + "! So happy!");
+                            c2.addThought("I married " + c1.getName() + "! So happy!");
+                        }
+                    }
+                    
                 }
             }
         }

@@ -1,7 +1,7 @@
 package character;
 
-import world.World;
 import java.util.*;
+import world.World;
 
 public class BehaviorManager {
     private final List<Behavior> behaviors;

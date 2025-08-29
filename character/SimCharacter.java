@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
-
 import utility.SpriteManager;
 import world.World;
 
@@ -12,14 +11,20 @@ public class SimCharacter {
     String name;
     int x, y;
     String gender;
-    Random random = new Random();
     int hunger;
     int health;
     int social;
+
+    boolean isMarried = false;
+    SimCharacter spouse = null;
+
     public Map<SimCharacter, Integer> relationships;
     java.util.List<String> thoughts = new java.util.ArrayList<>();
+
     private BufferedImage sprite;
     private BehaviorManager behaviorManager;
+
+    Random random = new Random();
 
     public SimCharacter(int x, int y) {
         this.name = generateName();
@@ -44,6 +49,8 @@ public class SimCharacter {
     public int getSocial() { return social; }
     public java.util.List<String> getThoughts() { return thoughts; }
     public Random getRandom() { return random; }
+    public boolean isMarried() { return isMarried; }
+    public SimCharacter getSpouse() { return spouse; }
     
     // Setter methods for cross-package access
     public void setX(int x) { this.x = x; }
@@ -143,6 +150,13 @@ public class SimCharacter {
 
     return nearest;
 }
+
+    public void marry(SimCharacter other){
+        this.isMarried = true;
+        this.spouse = other;
+        other.isMarried = true;
+        other.spouse = this;
+    }
     
     private void setRandomSprite() {
         sprite = SpriteManager.getRandomSprite("character");

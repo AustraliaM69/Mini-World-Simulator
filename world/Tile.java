@@ -1,7 +1,6 @@
 package world;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-
 import utility.SpriteManager;
 
 public class Tile {

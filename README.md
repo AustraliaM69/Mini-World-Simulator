@@ -24,4 +24,6 @@ The simulation runs in real-time with a simple UI - you can click on characters 
 - **Click on characters**: See their thoughts and stats
 - **Click on animals**: See their info
 
-Pretty basic stuff, but it's fun to watch the little guys go about their day!
+## Issues
+No cooldown for children being born so eventually all chracters are standing next to eachother and overload the game with children
+Currently loops over every single character to check their position and relationship, very very bad for scaling

@@ -52,7 +52,7 @@ public class BehaviorManager {
         character.setSocial(character.getSocial() + 1);
         
         // Handle health effects
-        if (character.getHunger() > 80) {
+        if (character.getHunger() > 100) {
             character.setHealth(character.getHealth() - 1);
         }
         

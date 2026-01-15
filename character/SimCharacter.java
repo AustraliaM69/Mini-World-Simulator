@@ -61,6 +61,7 @@ public class SimCharacter {
         thoughts.add(event);
     }
 
+    //PLACEHOLDER: More complex thought generation
     public String getRandomThought() {
         String[] randoms = {"I wonder what's for dinner...", "The grass is nice today.", "I feel lucky!", "Is it going to rain?", "I hope I meet someone new."};
         if (random.nextDouble() < 0.3) {

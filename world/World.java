@@ -10,6 +10,7 @@ public class World {
     java.util.List<SimCharacter> characters;
     java.util.List<Animal> animals;
     Random random = new Random();
+    List<SimCharacter> pendingSpawns = new ArrayList<>();
 
     public World(int width, int height) {
         this.width = width;
@@ -17,9 +18,9 @@ public class World {
         tiles = new Tile[width][height];
         characters = new java.util.ArrayList<>();
         animals = new java.util.ArrayList<>();
-
+        
         generateTiles();
-        spawnCharacters(10);
+        initSpawnCharacters(10);
         spawnAnimals(8);
     }
 
@@ -61,7 +62,7 @@ private void generateTiles() {
 }
 
 
-    private void spawnCharacters(int count) {
+    private void initSpawnCharacters(int count) {
         for (int i = 0; i < count; i++) {
             int x = random.nextInt(width);
             int y = random.nextInt(height);
@@ -76,7 +77,31 @@ private void generateTiles() {
         }
     }
 
+    //Method to spawn at specific location - Expand to include parenting later
+    private void spawnPendingCharacters() {
+ 
+  for (SimCharacter baby : pendingSpawns) {
+        characters.add(baby);
+
+        // DEBUG log actual position
+        System.out.println("DEBUG: Spawned new character at (" + baby.getX() + ", " + baby.getY() + ") With name: " + baby.getName());
+
+        // Initialize relationships with existing characters
+        for (SimCharacter other : characters) {
+            if (baby != other) {
+                baby.relationships.putIfAbsent(other, 0);
+                other.relationships.putIfAbsent(baby, 0);
+            }
+        }
+    }
+    pendingSpawns.clear();
+}
+
     public void tick() {
+        // Handle pending spawns first
+        if(!pendingSpawns.isEmpty()) {
+            spawnPendingCharacters();
+        }
         // Character actions
         for (SimCharacter c : characters) {
             c.act(this);
@@ -85,7 +110,7 @@ private void generateTiles() {
         for (Animal a : animals) {
             a.moveRandom(width, height, this);
         }
-        // Check for meetings and update relationships
+        // Check for meetings and update relationships -- Horrible way to do this, but simple for now FIXME
         for (SimCharacter c1 : characters) {
             for (SimCharacter c2 : characters) {
                 if (c1 != c2 && c1.getX() == c2.getX() && c1.getY() == c2.getY()) {
@@ -94,6 +119,23 @@ private void generateTiles() {
                     c1.addThought("Met " + c2.getName() + " (" + c2.getGender() + ") Relationship: " + (rel));
                     c1.setSocial(0); // Reset social on meeting
                     c2.setSocial(0); // Reset social on meeting
+
+                    int r1 = c1.relationships.get(c2);
+                    int r2 = c2.relationships.get(c1);
+                    
+                    boolean oppositeGender = !c1.getGender().equals(c2.getGender());
+                    if (oppositeGender && r1 > 1 && r2 > 1) {
+                        c1.addThought("I'm attracted to " + c2.getName() + "!");
+                        c2.addThought("I'm attracted to " + c1.getName() + "!");
+
+                        pendingSpawns.add(new SimCharacter(c1.getX(), c1.getY()));
+
+                        c1.addEventThought("Had a child with " + c2.getName() + "!");
+                        c2.addEventThought("Had a child with " + c1.getName() + "!");
+
+                        //DEBUG 
+                        System.out.println(c1.getName() + " and " + c2.getName() + " should have a child!");
+                    }
                 }
             }
         }
